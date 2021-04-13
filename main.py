@@ -72,14 +72,26 @@ if __name__ == "__main__":
     links.append( Link("revolute", 2, symbols('L_2'), 0, 0, symbols('%s_2' %(theta))) )
     links.append( Link("revolute", 3, symbols('L_3'), 0, 0, symbols('%s_3' %(theta))) )
 
-    A1 = links[0].A
-    A2 = links[1].A
-    A3 = links[2].A
-
-    pprint(A1)
-    pprint(A2)
-    pprint(A3)
-    #pprint(A1*A2)
-    #pprint(trigsimp(A1*A2*A3))
-    #pprint(compute_angVel(links))
+    T = eye(4)
+    J = compute_linVel(links)
+    Jw = compute_angVel(links)
+    for link in links: #print all the transformation matricies for each link
+        print("A_%d\n"%link.link_num)
+        pprint(link.A)
+        
+    print("The forward kinematics: \n")
+    for link in links: 
+        T = T * link.A
+        for i in range(1, link.link_num + 1):
+            print("A_%d"%i, end=" ")
+        print("\n")
+        pprint(trigsimp(T))
+    
+    print("Angular velocity Jw: \n")
+    pprint(compute_angVel(links))
+    print("Linear velocity Jv: \n")
     pprint(compute_linVel(links))
+    print("The complete Jacobian J(q): \n") 
+    for i in range(1, 4):
+        J = J.row_insert(3 + i, Jw.row(i-1))
+    pprint(J)
