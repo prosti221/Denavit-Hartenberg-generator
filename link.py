@@ -7,7 +7,8 @@ class Link:
         self.link_length = link_length                                          
         self.link_twist = link_twist                                            
         self.link_offset = link_offset                                          
-        self.joint_angle = joint_angle                                          
+        self.joint_angle = joint_angle
+        self.m = 0
                                                                                 
         self.A = Matrix([[cos(self.joint_angle), -sin(self.joint_angle)*cos(self.link_twist) , sin(self.joint_angle)*sin(self.link_twist), self.link_length * cos(self.joint_angle)],
                     [sin(self.joint_angle), cos(self.joint_angle)*cos(self.link_twist) , -cos(self.joint_angle)*sin(self.link_twist), self.link_length * sin(self.joint_angle)],
