@@ -18,6 +18,12 @@ def compute_kinetic(J,links, DOF, q):
     R_list = [links[0].A[:3, :3]] #Rotational matricies
     
     I_list = []
+
+    #In case we need a predifined matrix for RIR^T
+    #RIR = Matrix([[0, 0, 0],
+    #              [0, 0, 0],
+    #             [0, 0, 0]]))
+
     for i in range(DOF):
         I_list.append(Matrix([[Symbol("I_%d,x"%(i+1)), 0, 0],
                               [0, Symbol("I_%d,y"%(i+1)), 0],
@@ -58,21 +64,34 @@ def compute_kinetic(J,links, DOF, q):
             except Exception as e:
                 print(e)
         Jv_list.append(v)
-        Jw_list.append(w)
+        if links[i].link_type == 'revolute':
+            Jw_list.append(w)
+        else:
+            Jw_list.append(zeros(3, DOF))
 
     Jv_list.append(Jv)
-    Jw_list.append(Jw)
+   
+    if links[-1].link_type == 'revolute':
+        Jw_list.append(Jw)
+    else:
+        Jw_list.append(zeros(3, DOF))
+    
 
     print("\n######### LINEAR VELOCITIES (Jv)  #########\n")
-    pprint(Jw_list)
-    print("\n######### ANGULAR VELOCITIES (Jw)  #########\n")
     pprint(Jv_list)
-    
+    print("\n######### ANGULAR VELOCITIES (Jw)  #########\n")
+    pprint(Jw_list)
+   
+
     #Summing the kinetic energy of each link together
+    print("\n#########  Kinetic energies  #########\n")
     for i in range(DOF):
+        print("\nK_%d\n"%i)
         lin_vel = links[i].m * Jv_list[i].T * Jv_list[i]
-        ang_vel = Jw_list[i].T * R_list[i] * I_list[i] * R_list[i].T * Jw_list[i]
+        ang_vel = Jw_list[i].T * R_list[i] * I_list[i] * R_list[i].T * Jw_list[i] #Assuming I is momentum matrix where inertia tensor I = RiR^T
+        #ang_vel = Jw_list[i].T * I_list[i] * Jw_list[i] #Assuming I is the inertia tensor
         D += lin_vel + ang_vel
+        pprint(simplify( (1/2) * (q_dot.T * (lin_vel + ang_vel) *q_dot) ))
      
     print("\n######### INERTIA MATRIX (D)  #########\n")
     pprint(simplify(D))

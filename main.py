@@ -3,25 +3,7 @@ from sympy.physics.vector import *
 from velocity_kinematics import *
 from dynamics import *
 from link import Link
-
-
-def inverse_kinematcs(T, links, x_val, y_val, z_val):
-    DOF = len(links)
-    unknowns = []
-    system = []
-    for link in links:
-        if link.link_type == "prismatic":
-            unknowns.append(link.link_offset)
-        else:
-            unknowns.append(link.joint_angle)
-    x, y, z = symbols("x y z")
-
-    system.append( Eq(x, T.col(3)[0]) )
-    system.append( Eq(y, T.col(3)[1]) )
-    system.append( Eq(z, T.col(3)[2]) )
-
-    result = solve(system, unknowns, dict=True)
-    pprint(result)
+from latex import print_simple, print_latex
 
 if __name__ == "__main__":
     #Link(link_type, link_num(i), link_length(a), link_twist(alpha), link_offset(d), joint_angle(theta))
@@ -49,10 +31,13 @@ if __name__ == "__main__":
     Ke = 0  #Total kinetic energy
     Pe = 0  #Total potential energy
   
-    links.append( Link("revolute", 1, 0, pi/2, symbols('L_1'), dynamicsymbols('%s_1' %(theta))) )
-    links.append( Link("revolute", 2, symbols('L_2'), 0, 0, dynamicsymbols('%s_2' %(theta))) )
-    links.append( Link("revolute", 3, symbols('L_3'), 0, 0, dynamicsymbols('%s_3' %(theta))) )
-
+    #links.append( Link(link_type="revolute", link_num=1, link_length=0, link_twist=-pi/2, link_offset=symbols('L_1'), joint_angle=symbols('%s_1' %(theta)) ) )
+    #links.append( Link(link_type="revolute", link_num=2, link_length=symbols('L_2'), link_twist=pi/2, link_offset=0, joint_angle=symbols('%s_2' %(theta))) )
+    #links.append( Link(link_type="prismatic", link_num=3, link_length=0, link_twist=0, link_offset=symbols('L_3'), joint_angle=0) )
+    
+    links.append( Link(link_type="prismatic", link_num=1, link_length=0, link_twist=0, link_offset=symbols('L_1'), joint_angle=0) )
+    links.append( Link(link_type="revolute", link_num=2, link_length=0, link_twist=0, link_offset=0, joint_angle=symbols('%s_2' %(theta))) )
+    
     DOF = len(links)
 
     #Set the masses if needed
@@ -70,14 +55,13 @@ if __name__ == "__main__":
     q = Matrix(q)
     
     T = eye(4)
-    Jv = compute_linVel(links)
-    Jw = compute_angVel(links)
-    J = Jv 
 
     print("\n\n######## TRANSFORMATION MATRICIES #########I\n\n")
     for link in links: #print all the transformation matricies for each link
         print("A_%d\n"%link.link_num)
         pprint(link.A)
+        print_simple(link.A, links)
+        print_latex(link.A, links)
         
     print("\n\n######## FORWARD KINEMATICS  #########I\n\n")
     for link in links: 
@@ -86,24 +70,39 @@ if __name__ == "__main__":
             print("A_%d"%i, end=" ")
         print("\n")
         pprint(trigsimp(T))
-   
+        print_simple(trigsimp(T), links)
+        print_latex(trigsimp(T), links)
+  
+    Jv = compute_linVel(links)
+    Jw = compute_angVel(links)
+    J = Jv 
 
     print("############ ANGULAR VELOCITY #################\n\n")
     pprint(Jw)
+    print_simple(Jw, links)
+    print_latex(Jw, links)
 
     print("############ LINEAR VELOCITY #################\n\n")
     pprint(Jv)
+    print_simple(Jv, links)
+    print_latex(Jv, links)
     
     print("############ JACOBIAN #################\n\n")
     for i in range(1, 4):
         J = J.row_insert(3 + i, Jw.row(i-1))
     pprint(J)
+    print_simple(J, links)
+    print_latex(J, links)
 
-    print("############ SINGULARITIES  #################\n\n")
-    #det = compute_singularities(compute_linVel(links))
-    #pprint(trigsimp(det))
+    print("############ Determinant of Jv  #################\n\n")
+    #det = compute_singularities(Jv)
+    #pprint(det)
+
+    #for link in links:
+    #    if link.link_type == "revolute":
+    #        link.joint_angle = dynamicsymbols('%s_%d'%(theta, link.link_num))
 
     print("Ke: \n");
     D, Ke = compute_kinetic(J, links, DOF, q)
-    C = compute_cristoffel(D, DOF, q)
+    #C = compute_cristoffel(D, DOF, q)
 
