@@ -17,13 +17,11 @@ def compute_angVel(links):
                 pprint(symbols("Z_%d="%i))
                 Jw.append(Jw[-1])                                               
                 pprint(Jw[-1])
-                print_simple(Matrix(Jw[-1]), links)
                 print_latex(Matrix(Jw[-1]), links)
             else:
                 pprint(symbols("Z_%d="%i))
                 Jw.append(links[i-1].getZ())
                 pprint(Jw[-1])
-                print_simple(Matrix(Jw[-1]), links)
                 print_latex(Matrix(Jw[-1]), links)
         else:                                                                   
             Jw.append([0, 0, 0])                                                
@@ -40,7 +38,6 @@ def compute_linVel(links):
     o_n = trigsimp(A_n).col(3)[0:3]
     pprint(symbols("o_%d"%n))
     pprint(Matrix(o_n))
-    print_simple(Matrix(o_n), links)
     print_latex(Matrix(o_n), links)
                                                                                 
     print("\n######## Jv_1 #########\n")
@@ -52,7 +49,6 @@ def compute_linVel(links):
         pprint(Z_0)
         Jv =  Matrix(links[0].getZ())                                             
     pprint(Jv)
-    print_simple(Jv, links)
     print_latex(Jv, links)
                                                                                 
     A_x = eye(4)                                                                
@@ -68,7 +64,6 @@ def compute_linVel(links):
             Jv = Jv.col_insert(i, Matrix(A_x.col(2)[0:3]))
             pprint(z)
         pprint(Jv.col(i))
-        print_simple(Jv.col(i), links)
         print_latex(Jv.col(i), links)
     return trigsimp(Jv)                                                         
                                                                                 
