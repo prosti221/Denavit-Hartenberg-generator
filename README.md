@@ -1,6 +1,6 @@
-## Computes the forward kinematic equations, velocity kinematics and dynamics of a configuration based on the Denavit-Hartenberg convention.
+# Computes the forward kinematic equations, velocity kinematics and dynamics of a configuration based on the Denavit-Hartenberg convention.
 
-# This takes the following inputs:
+## This takes the following inputs:
     * 1. N number of links in configuration
     * 2. The DH parameters of the link: link length, link twist, link offset and joint angle.
     * 3. Mass and inertia tensors for the dynamics
